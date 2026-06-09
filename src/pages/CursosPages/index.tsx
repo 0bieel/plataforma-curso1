@@ -1,77 +1,41 @@
-﻿import { Button } from "../../components/Button";
-import { useState } from "react";
+import { cursoSchema, type ICurso } from "../../models/curso.model";
+import { cursosService } from "../../services/curso.service";
+import { getOptionLabel, getOptions } from "../../services/options.service";
+import { ResourcePage } from "../shared/ResourcePage";
+import type { ResourcePageConfig } from "../shared/resource-page.types";
 
-export const CursosPages = () => {
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+const normalize = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
 
-  return (
-    <div className="container mt-4">
-      <div className="row justify-content-center">
-        <div className="col-12 col-lg-8">
-          <div className="card shadow-sm border-0 mb-3">
-            <div className="card-body p-4 text-start">
-              <h1 className="h4 mb-3">Cursos</h1>
-              <p className="mb-3">No momento, não há nenhum curso cadastrado ainda.</p>
-              <button
-                type="button"
-                className="btn btn-dark"
-                onClick={() => setMostrarFormulario(true)}
-              >
-                Adicionar curso
-              </button>
-            </div>
-          </div>
+const cursosConfig = (): ResourcePageConfig<ICurso> => ({
+  title: "Cursos",
+  initialItem: { id: "", titulo: "", categoria: "", descricao: "", cargaHoraria: "" },
+  schema: cursoSchema,
+  service: cursosService,
+  validateItem: (curso, cursos) => {
+    const cursoDuplicado = cursos.some(
+      (item) =>
+        item.id !== curso.id &&
+        normalize(item.titulo) === normalize(curso.titulo) &&
+        normalize(item.categoria) === normalize(curso.categoria) &&
+        normalize(item.descricao) === normalize(curso.descricao),
+    );
 
-          {mostrarFormulario && (
-            <div className="card shadow-sm border-0">
-              <div className="card-body p-4">
-                <div className="mb-3 text-start">
-                  <label htmlFor="titulo" className="form-label">
-                    Título
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="titulo"
-                    placeholder="Digite o título do curso"
-                  />
-                </div>
+    return cursoDuplicado
+      ? { titulo: "Ja existe um curso com o mesmo titulo, categoria e descricao" }
+      : {};
+  },
+  fields: [
+    { name: "titulo", label: "Titulo", type: "text", placeholder: "Digite o titulo" },
+    {
+      name: "categoria",
+      label: "Categoria",
+      type: "select",
+      options: getOptions("categorias", "nome"),
+      renderValue: (curso) => getOptionLabel("categorias", curso.categoria, "nome"),
+    },
+    { name: "descricao", label: "Descricao", type: "textarea" },
+    { name: "cargaHoraria", label: "Carga horaria", type: "text", placeholder: "Ex.: 10h" },
+  ],
+});
 
-                <div className="mb-3 text-start">
-                  <label htmlFor="descricao" className="form-label">
-                    Descrição
-                  </label>
-                  <textarea
-                    className="form-control"
-                    id="descricao"
-                    rows={4}
-                    placeholder="Digite a descrição do curso"
-                  ></textarea>
-                </div>
-
-                <div className="mb-3 text-start">
-                  <label htmlFor="cargaHoraria" className="form-label">
-                    Carga horária
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="cargaHoraria"
-                    placeholder="Ex.: 10h"
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  value="Salvar"
-                  variant="primary"
-                  onClick={() => undefined}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+export const CursosPages = () => <ResourcePage config={cursosConfig()} />;
