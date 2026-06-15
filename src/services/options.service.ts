@@ -2,8 +2,20 @@ const API_URL = "http://localhost:3000";
 
 const resourceCache = new Map<string, unknown[]>();
 
+const normalizeId = <T>(item: T): T => {
+  if (!item || typeof item !== "object" || !("id" in item)) {
+    return item;
+  }
+
+  const resource = item as T & { id?: string | number };
+  return {
+    ...resource,
+    id: resource.id === undefined || resource.id === null ? resource.id : String(resource.id),
+  };
+};
+
 export const setCachedItems = <T>(resourceName: string, items: T[]) => {
-  resourceCache.set(resourceName, items);
+  resourceCache.set(resourceName, items.map(normalizeId));
 };
 
 export const getStoredItems = <T>(resourceName: string): T[] => (resourceCache.get(resourceName) ?? []) as T[];
@@ -15,7 +27,7 @@ export const loadCachedItems = async <T>(resourceName: string): Promise<T[]> => 
     throw new Error(`Erro ao carregar ${resourceName}.`);
   }
 
-  const items = (await response.json()) as T[];
+  const items = ((await response.json()) as T[]).map(normalizeId);
   setCachedItems(resourceName, items);
   return items;
 };

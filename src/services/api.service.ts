@@ -58,7 +58,7 @@ export class ApiService<T extends IResource> {
       throw new Error(response.status === 404 ? "Registro nao encontrado." : "Erro ao consumir a API.");
     }
 
-    const data = (await response.json()) as R;
+    const data = this.normalizeIds((await response.json()) as R);
     await this.refreshCache();
     return data;
   }
@@ -67,10 +67,30 @@ export class ApiService<T extends IResource> {
     const response = await fetch(`${this.apiUrl}/${this.resourceName}`);
 
     if (response.ok) {
-      setCachedItems(this.resourceName, (await response.json()) as T[]);
+      setCachedItems(this.resourceName, this.normalizeIds((await response.json()) as T[]));
       return;
     }
 
     setCachedItems(this.resourceName, getStoredItems<T>(this.resourceName));
+  }
+
+  private normalizeIds<R>(data: R): R {
+    if (Array.isArray(data)) {
+      return data.map((item) => this.normalizeItemId(item)) as R;
+    }
+
+    return this.normalizeItemId(data) as R;
+  }
+
+  private normalizeItemId<R>(item: R): R {
+    if (!item || typeof item !== "object" || !("id" in item)) {
+      return item;
+    }
+
+    const resource = item as R & { id?: string | number };
+    return {
+      ...resource,
+      id: resource.id === undefined || resource.id === null ? resource.id : String(resource.id),
+    };
   }
 }
