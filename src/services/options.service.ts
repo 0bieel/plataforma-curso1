@@ -1,15 +1,31 @@
-export const getStoredItems = <T>(storageKey: string): T[] => {
-  const storedItems = localStorage.getItem(storageKey);
+const API_URL = "http://localhost:3000";
 
-  if (!storedItems) {
-    return [];
+const resourceCache = new Map<string, unknown[]>();
+
+export const setCachedItems = <T>(resourceName: string, items: T[]) => {
+  resourceCache.set(resourceName, items);
+};
+
+export const getStoredItems = <T>(resourceName: string): T[] => (resourceCache.get(resourceName) ?? []) as T[];
+
+export const loadCachedItems = async <T>(resourceName: string): Promise<T[]> => {
+  const response = await fetch(`${API_URL}/${resourceName}`);
+
+  if (!response.ok) {
+    throw new Error(`Erro ao carregar ${resourceName}.`);
   }
 
-  try {
-    return JSON.parse(storedItems) as T[];
-  } catch {
-    return [];
-  }
+  const items = (await response.json()) as T[];
+  setCachedItems(resourceName, items);
+  return items;
+};
+
+export const hydrateOptionCache = async () => {
+  await Promise.all(
+    ["categorias", "cursos", "usuarios", "aulas-modulos", "matriculas", "progressos", "trilhas", "planos"].map(
+      (resourceName) => loadCachedItems(resourceName),
+    ),
+  );
 };
 
 export const getOptions = (storageKey: string, labelFieldName: string, valueFieldName = "id") =>

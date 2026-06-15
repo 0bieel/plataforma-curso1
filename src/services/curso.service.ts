@@ -1,7 +1,7 @@
 import type { ICurso } from "../models/curso.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class CursosService extends LocalStorageService<ICurso> {
+export class CursosService extends ApiService<ICurso> {
   constructor() {
     super("cursos");
   }

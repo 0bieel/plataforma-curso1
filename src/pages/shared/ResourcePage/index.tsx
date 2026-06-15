@@ -3,6 +3,7 @@ import type { IResource } from "../../../models/resource.model";
 import { ResourceForm } from "../ResourceForm";
 import { ResourceTable } from "../ResourceTable";
 import type { ResourcePageConfig } from "../resource-page.types";
+import { hydrateOptionCache } from "../../../services/options.service";
 
 interface ResourcePageProps<T extends IResource> {
   config: ResourcePageConfig<T>;
@@ -16,6 +17,7 @@ export const ResourcePage = <T extends IResource>({ config }: ResourcePageProps<
 
   const carregarItems = async () => {
     try {
+      await hydrateOptionCache();
       const items = await config.service.findAll();
       setListaItems(items);
     } catch (error) {
@@ -71,7 +73,7 @@ export const ResourcePage = <T extends IResource>({ config }: ResourcePageProps<
       const itemCriado = await config.service.create(dadosNovoItem as Omit<T, "id">);
       const itemsAtualizados = [...listaItems, itemCriado];
       setListaItems(itemsAtualizados);
-      config.afterSave?.(itemCriado, itemsAtualizados);
+      await config.afterSave?.(itemCriado, itemsAtualizados);
       limparFormulario();
     } catch (error) {
       console.error(`Erro ao criar ${config.title}:`, error);
@@ -85,7 +87,7 @@ export const ResourcePage = <T extends IResource>({ config }: ResourcePageProps<
         itemLista.id === itemAtualizado.id ? itemAtualizado : itemLista,
       );
       setListaItems(itemsAtualizados);
-      config.afterSave?.(itemAtualizado, itemsAtualizados);
+      await config.afterSave?.(itemAtualizado, itemsAtualizados);
       limparFormulario();
     } catch (error) {
       console.error(`Erro ao atualizar ${config.title}:`, error);

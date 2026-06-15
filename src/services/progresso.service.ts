@@ -1,9 +1,9 @@
 import type { IProgresso } from "../models/progresso.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class ProgressosService extends LocalStorageService<IProgresso> {
+export class ProgressosService extends ApiService<IProgresso> {
   constructor() {
-    super("progresso");
+    super("progressos");
   }
 }
 

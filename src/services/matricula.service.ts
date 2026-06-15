@@ -1,7 +1,7 @@
 import type { IMatricula } from "../models/matricula.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class MatriculasService extends LocalStorageService<IMatricula> {
+export class MatriculasService extends ApiService<IMatricula> {
   constructor() {
     super("matriculas");
   }

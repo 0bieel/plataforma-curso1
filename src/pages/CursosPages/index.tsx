@@ -30,7 +30,7 @@ const cursosConfig = (): ResourcePageConfig<ICurso> => ({
       name: "categoria",
       label: "Categoria",
       type: "select",
-      options: getOptions("categorias", "nome"),
+      options: () => getOptions("categorias", "nome"),
       renderValue: (curso) => getOptionLabel("categorias", curso.categoria, "nome"),
     },
     { name: "descricao", label: "Descricao", type: "textarea" },

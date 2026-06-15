@@ -1,7 +1,7 @@
 import type { ICategoria } from "../models/categoria.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class CategoriasService extends LocalStorageService<ICategoria> {
+export class CategoriasService extends ApiService<ICategoria> {
   constructor() {
     super("categorias");
   }

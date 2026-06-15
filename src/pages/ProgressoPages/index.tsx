@@ -2,20 +2,21 @@ import { progressoSchema, type IProgresso } from "../../models/progresso.model";
 import type { IAulaModulo } from "../../models/aula-modulo.model";
 import type { IMatricula } from "../../models/matricula.model";
 import { getOptionLabel, getOptions, getStoredItems } from "../../services/options.service";
+import { matriculasService } from "../../services/matricula.service";
 import { progressosService } from "../../services/progresso.service";
 import { ResourcePage } from "../shared/ResourcePage";
 import type { ResourcePageConfig } from "../shared/resource-page.types";
 
 const getAulaOptions = (curso: string) =>
-  getStoredItems<IAulaModulo>("aulasModulos")
+  getStoredItems<IAulaModulo>("aulas-modulos")
     .filter((item) => item.tipo === "aula" && item.curso === curso && item.id)
     .map((item) => ({ value: item.id ?? "", label: item.aula }));
 
 const getAulaLabel = (aulaId: string) =>
-  getStoredItems<IAulaModulo>("aulasModulos").find((item) => item.id === aulaId)?.aula ?? "";
+  getStoredItems<IAulaModulo>("aulas-modulos").find((item) => item.id === aulaId)?.aula ?? "";
 
 const getStatusMatricula = (usuario: string, curso: string, progressos: IProgresso[]) => {
-  const aulas = getStoredItems<IAulaModulo>("aulasModulos").filter(
+  const aulas = getStoredItems<IAulaModulo>("aulas-modulos").filter(
     (item) => item.tipo === "aula" && item.curso === curso && item.id,
   );
 
@@ -37,14 +38,18 @@ const getStatusMatricula = (usuario: string, curso: string, progressos: IProgres
   return "Em andamento";
 };
 
-const atualizarStatusMatriculas = (progressos: IProgresso[]) => {
+const atualizarStatusMatriculas = async (progressos: IProgresso[]) => {
   const matriculas = getStoredItems<IMatricula>("matriculas");
   const matriculasAtualizadas = matriculas.map((matricula) => ({
     ...matricula,
     status: getStatusMatricula(matricula.usuario, matricula.curso, progressos),
   }));
 
-  localStorage.setItem("matriculas", JSON.stringify(matriculasAtualizadas));
+  await Promise.all(
+    matriculasAtualizadas
+      .filter((matricula) => matricula.id && matricula.status !== matriculas.find((item) => item.id === matricula.id)?.status)
+      .map((matricula) => matriculasService.update(matricula.id!, matricula)),
+  );
 };
 
 const progressosConfig = (): ResourcePageConfig<IProgresso> => ({
@@ -72,14 +77,14 @@ const progressosConfig = (): ResourcePageConfig<IProgresso> => ({
       name: "usuario",
       label: "Usuario",
       type: "select",
-      options: getOptions("usuarios", "nome"),
+      options: () => getOptions("usuarios", "nome"),
       renderValue: (progresso) => getOptionLabel("usuarios", progresso.usuario, "nome"),
     },
     {
       name: "curso",
       label: "Curso",
       type: "select",
-      options: getOptions("cursos", "titulo"),
+      options: () => getOptions("cursos", "titulo"),
       renderValue: (progresso) => getOptionLabel("cursos", progresso.curso, "titulo"),
     },
     {

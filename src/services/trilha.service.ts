@@ -1,7 +1,7 @@
 import type { ITrilha } from "../models/trilha.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class TrilhasService extends LocalStorageService<ITrilha> {
+export class TrilhasService extends ApiService<ITrilha> {
   constructor() {
     super("trilhas");
   }

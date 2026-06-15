@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { aulaModuloSchema, type IAulaModulo } from "../../models/aula-modulo.model";
 import { aulasModulosService } from "../../services/aula-modulo.service";
-import { getOptionLabel, getOptions } from "../../services/options.service";
+import { getOptionLabel, getOptions, hydrateOptionCache } from "../../services/options.service";
 
 type TipoCadastro = "modulo" | "aula";
 
@@ -24,6 +24,7 @@ export const AulasModulosPages = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const carregarItems = async () => {
+    await hydrateOptionCache();
     setItems(await aulasModulosService.findAll());
   };
 
@@ -115,7 +116,11 @@ export const AulasModulosPages = () => {
         return item;
       });
 
-      localStorage.setItem("aulasModulos", JSON.stringify(itemsAtualizados));
+      await Promise.all(
+        itemsAtualizados
+          .filter((item) => item.id && item.modulo === itemAtualizado.id)
+          .map((item) => aulasModulosService.update(item.id!, item)),
+      );
       setItems(itemsAtualizados);
     } else {
       const { id, ...dadosNovoItem } = itemValidado;
@@ -141,7 +146,11 @@ export const AulasModulosPages = () => {
 
     if (item.tipo === "modulo") {
       const proximosItems = items.filter((savedItem) => savedItem.id !== item.id && savedItem.modulo !== item.id);
-      localStorage.setItem("aulasModulos", JSON.stringify(proximosItems));
+      await Promise.all(
+        items
+          .filter((savedItem) => savedItem.id === item.id || savedItem.modulo === item.id)
+          .map((savedItem) => aulasModulosService.delete(savedItem.id!)),
+      );
       setItems(proximosItems);
       limparFormulario("modulo");
       return;

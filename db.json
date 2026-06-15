@@ -1,0 +1,92 @@
+{
+  "categorias": [
+    {
+      "id": "cat-1",
+      "nome": "Programacao",
+      "descricao": "Cursos de desenvolvimento de software"
+    }
+  ],
+  "cursos": [
+    {
+      "id": "curso-1",
+      "titulo": "React para Iniciantes",
+      "categoria": "cat-1",
+      "descricao": "Fundamentos para criar interfaces com React",
+      "cargaHoraria": "20h"
+    }
+  ],
+  "usuarios": [
+    {
+      "id": "usuario-1",
+      "nome": "Aluno Exemplo",
+      "email": "aluno@example.com",
+      "perfil": "Aluno"
+    }
+  ],
+  "aulas-modulos": [
+    {
+      "id": "modulo-1",
+      "tipo": "modulo",
+      "curso": "curso-1",
+      "modulo": "Introducao",
+      "aula": "",
+      "conteudo": ""
+    },
+    {
+      "id": "aula-1",
+      "tipo": "aula",
+      "curso": "curso-1",
+      "modulo": "modulo-1",
+      "aula": "Primeiros passos",
+      "conteudo": "Instalacao e estrutura inicial do projeto"
+    }
+  ],
+  "matriculas": [
+    {
+      "id": "matricula-1",
+      "usuario": "usuario-1",
+      "curso": "curso-1",
+      "data": "2026-06-15",
+      "status": "Em andamento"
+    }
+  ],
+  "progressos": [
+    {
+      "id": "progresso-1",
+      "usuario": "usuario-1",
+      "curso": "curso-1",
+      "aula": "aula-1",
+      "concluida": false,
+      "observacao": ""
+    }
+  ],
+  "avaliacoes": [
+    {
+      "id": "avaliacao-1",
+      "curso": "curso-1",
+      "usuario": "usuario-1",
+      "nota": "5",
+      "comentario": "Curso bem organizado."
+    }
+  ],
+  "trilhas": [
+    {
+      "id": "trilha-1",
+      "titulo": "Frontend",
+      "curso": "",
+      "cursos": [
+        "curso-1"
+      ],
+      "descricao": "Caminho de estudos para desenvolvimento frontend"
+    }
+  ],
+  "planos": [
+    {
+      "id": "plano-1",
+      "nome": "Mensal",
+      "valor": "49.90",
+      "periodicidade": "Mensal",
+      "descricao": "Acesso mensal aos cursos"
+    }
+  ]
+}

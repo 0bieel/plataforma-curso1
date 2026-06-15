@@ -9,10 +9,10 @@ import type { ResourcePageConfig } from "../shared/resource-page.types";
 const getToday = () => new Date().toISOString().slice(0, 10);
 
 const getStatusMatricula = (usuario: string, curso: string) => {
-  const aulas = getStoredItems<IAulaModulo>("aulasModulos").filter(
+  const aulas = getStoredItems<IAulaModulo>("aulas-modulos").filter(
     (item) => item.tipo === "aula" && item.curso === curso && item.id,
   );
-  const progressos = getStoredItems<IProgresso>("progresso").filter(
+  const progressos = getStoredItems<IProgresso>("progressos").filter(
     (item) => item.usuario === usuario && item.curso === curso && item.concluida,
   );
 
@@ -38,14 +38,14 @@ const matriculasConfig = (): ResourcePageConfig<IMatricula> => ({
       name: "usuario",
       label: "Usuario",
       type: "select",
-      options: getOptions("usuarios", "nome"),
+      options: () => getOptions("usuarios", "nome"),
       renderValue: (matricula) => getOptionLabel("usuarios", matricula.usuario, "nome"),
     },
     {
       name: "curso",
       label: "Curso",
       type: "select",
-      options: getOptions("cursos", "titulo"),
+      options: () => getOptions("cursos", "titulo"),
       renderValue: (matricula) => getOptionLabel("cursos", matricula.curso, "titulo"),
     },
     {

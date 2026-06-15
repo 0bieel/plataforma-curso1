@@ -1,7 +1,7 @@
 import type { IAvaliacao } from "../models/avaliacao.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class AvaliacoesService extends LocalStorageService<IAvaliacao> {
+export class AvaliacoesService extends ApiService<IAvaliacao> {
   constructor() {
     super("avaliacoes");
   }

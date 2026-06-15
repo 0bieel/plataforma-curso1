@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ITrilha } from "../../models/trilha.model";
-import { getOptionLabel, getOptions } from "../../services/options.service";
+import { getOptionLabel, getOptions, hydrateOptionCache } from "../../services/options.service";
 import { trilhasService } from "../../services/trilha.service";
 
 const trilhaInicial: ITrilha = { id: "", titulo: "", descricao: "", cursos: [] };
@@ -49,6 +49,7 @@ export const TrilhasPages = () => {
   const [cursoSelecionado, setCursoSelecionado] = useState("");
 
   const carregarTrilhas = async () => {
+    await hydrateOptionCache();
     const trilhasSalvas = normalizarTrilhas(await trilhasService.findAll());
     setTrilhas(trilhasSalvas);
   };
@@ -57,12 +58,7 @@ export const TrilhasPages = () => {
     carregarTrilhas();
   }, []);
 
-  const salvarTrilhas = (proximasTrilhas: ITrilha[]) => {
-    localStorage.setItem("trilhas", JSON.stringify(proximasTrilhas));
-    setTrilhas(proximasTrilhas);
-  };
-
-  const criarTrilha = () => {
+  const criarTrilha = async () => {
     const titulo = novaTrilha.titulo.trim();
     const trilhaDuplicada = trilhas.some((trilha) => normalize(trilha.titulo) === normalize(titulo));
 
@@ -76,8 +72,8 @@ export const TrilhasPages = () => {
       return;
     }
 
-    const trilhaCriada = { ...novaTrilha, id: crypto.randomUUID(), titulo, cursos: [] };
-    salvarTrilhas([...trilhas, trilhaCriada]);
+    const trilhaCriada = await trilhasService.create({ ...novaTrilha, titulo, cursos: [] });
+    setTrilhas([...trilhas, trilhaCriada]);
     setNovaTrilha(trilhaInicial);
     setErroTitulo("");
     setFormAberto(false);
@@ -93,7 +89,7 @@ export const TrilhasPages = () => {
     setCursoSelecionado("");
   };
 
-  const adicionarCurso = () => {
+  const adicionarCurso = async () => {
     if (!trilhaSelecionada || !cursoSelecionado) {
       return;
     }
@@ -110,12 +106,16 @@ export const TrilhasPages = () => {
     });
     const trilhaAtualizada = trilhasAtualizadas.find((trilha) => trilha.id === trilhaSelecionada.id) ?? null;
 
-    salvarTrilhas(trilhasAtualizadas);
+    if (trilhaAtualizada?.id) {
+      await trilhasService.update(trilhaAtualizada.id, trilhaAtualizada);
+    }
+
+    setTrilhas(trilhasAtualizadas);
     setTrilhaSelecionada(trilhaAtualizada);
     setCursoSelecionado("");
   };
 
-  const removerCurso = (cursoId: string) => {
+  const removerCurso = async (cursoId: string) => {
     if (!trilhaSelecionada) {
       return;
     }
@@ -133,7 +133,11 @@ export const TrilhasPages = () => {
     });
     const trilhaAtualizada = trilhasAtualizadas.find((trilha) => trilha.id === trilhaSelecionada.id) ?? null;
 
-    salvarTrilhas(trilhasAtualizadas);
+    if (trilhaAtualizada?.id) {
+      await trilhasService.update(trilhaAtualizada.id, trilhaAtualizada);
+    }
+
+    setTrilhas(trilhasAtualizadas);
     setTrilhaSelecionada(trilhaAtualizada);
   };
 

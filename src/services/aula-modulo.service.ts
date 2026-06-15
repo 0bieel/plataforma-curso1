@@ -1,9 +1,9 @@
 import type { IAulaModulo } from "../models/aula-modulo.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class AulasModulosService extends LocalStorageService<IAulaModulo> {
+export class AulasModulosService extends ApiService<IAulaModulo> {
   constructor() {
-    super("aulasModulos");
+    super("aulas-modulos");
   }
 }
 

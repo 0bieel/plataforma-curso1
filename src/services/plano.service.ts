@@ -1,7 +1,7 @@
 import type { IPlano } from "../models/plano.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class PlanosService extends LocalStorageService<IPlano> {
+export class PlanosService extends ApiService<IPlano> {
   constructor() {
     super("planos");
   }

@@ -1,7 +1,7 @@
 import type { IUsuario } from "../models/usuario.model";
-import { LocalStorageService } from "./local-storage.service";
+import { ApiService } from "./api.service";
 
-export class UsuariosService extends LocalStorageService<IUsuario> {
+export class UsuariosService extends ApiService<IUsuario> {
   constructor() {
     super("usuarios");
   }
